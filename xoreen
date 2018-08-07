@@ -150,7 +150,7 @@ class Xor
      xoreen -k AgentSmith -o /root/some.zip -b decode -v
      xorren -K -c /root/directory -b encode -s 1500000 -v
 
-   For more check Warnings from README.md
+   For more, check Warnings from README.md
 
           "
           exit(0)
