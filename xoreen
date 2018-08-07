@@ -899,5 +899,5 @@ class Xor
   process.main
   process.garbage_collector
 
-end #class xor sonu
+end
 
