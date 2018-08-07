@@ -1,0 +1,903 @@
+#!/usr/bin/ruby
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+#                                                                             #
+#    Xoreen. Encrypt and Decrypt Files Using Xor Algoritm.                    #
+#    Copyright (C) year: 2018  author: noycorp                                #
+#                                                                             #
+#    This program is free software: you can redistribute it and/or modify     #
+#    it under the terms of the GNU General Public License as published by     #
+#    the Free Software Foundation, either version 3 of the License, or        #
+#    (at your option) any later version.                                      #
+#                                                                             #
+#    This program is distributed in the hope that it will be useful,          #
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of           #
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            #
+#    GNU General Public License for more details.                             #
+#                                                                             #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+class Xor
+
+  process = Xor.new
+
+  attr_accessor :key,:xor,:read,:path
+  attr_accessor :step,:verdat,:keygen,:hard_error,:size
+  attr_accessor :level1,:level2,:level3,:level4,:level5
+  attr_accessor :data,:arg,:text,:write,:overwrite,:base64,:crush
+  attr_accessor :key_value,:keygen_value,:text_value,:read_value,:write_value
+  attr_accessor :overwrite_value,:base64_value,:size_value,:crush_value,:verbose
+
+  process.data = String.new
+  process.arg = String.new
+  process.text = String.new
+  process.read = String.new
+  process.path = String.new
+  process.write = String.new
+  process.overwrite = String.new
+  process.base64 = String.new
+  process.crush = String.new
+
+  process.key = Array.new
+  process.xor = String.new
+  process.read = String.new
+
+  process.level1 = Array.new
+  process.level2 = Array.new
+  process.level3 = Array.new
+  process.level4 = Array.new
+  process.level5 = Array.new
+
+  process.step = 1
+  process.verdat = 0
+  process.keygen = 50
+  process.hard_error = 0
+  process.size = 1000000
+
+  process.key_value = nil
+  process.keygen_value = nil
+  process.text_value = nil
+  process.read_value = nil
+  process.write_value = nil
+  process.overwrite_value = nil
+  process.base64_value = nil
+  process.size = nil
+  process.crush = nil
+  process.verbose = nil
+
+
+  def func_options
+
+    require 'getoptlong'
+
+    opts = GetoptLong.new(
+
+      [ '--help','-h',GetoptLong::NO_ARGUMENT ],
+      [ '--key','-k',GetoptLong::OPTIONAL_ARGUMENT ],
+      [ '--keygen','-K',GetoptLong::OPTIONAL_ARGUMENT ],
+      [ '--text','-t',GetoptLong::OPTIONAL_ARGUMENT ],
+      [ '--read','-r',GetoptLong::OPTIONAL_ARGUMENT ],
+      [ '--write','-w',GetoptLong::OPTIONAL_ARGUMENT ],
+      [ '--overwrite','-o',GetoptLong::OPTIONAL_ARGUMENT ],
+      [ '--base64','-b',GetoptLong::OPTIONAL_ARGUMENT ],
+      [ '--size','-s',GetoptLong::OPTIONAL_ARGUMENT ],
+      [ '--crush','-c',GetoptLong::OPTIONAL_ARGUMENT ],
+      [ '--verbose','-v',GetoptLong::NO_ARGUMENT ],
+      [ '--version','-V',GetoptLong::NO_ARGUMENT ],
+    )
+
+    begin
+      opts.each do |opt,arg|
+        case opt
+
+        when '--help'
+          puts "
+   Usage: xoreen --key [your_password], [option] [arg,path,int..], ..
+
+   Key Options
+
+     -k, --key <arg>               : Enter a key as manual.
+     -K, --keygen <integer>        : Enter a random key.
+                                     Default: 50 characters.
+
+   Base64 Options
+
+     -b, --base64 <encode/decode>  : Every file that can be read by the Base64
+                                     algorithm goes through the xor gate.
+                                     file.?? -> (UTF-8) -> xor gate
+                                     (pdf, zip, mp3, docx, etc..)
+                                     Not compatible with --text option.
+     -b, --base64 encode           : Encrypt the file with base64 algorithm
+                                     and take it to the xor gate.
+     -b, --base64 decode           : Take the file to the xor gate and
+                                     decrypt it with base64 algorithm.
+
+   Input Options
+
+     -t, --text <arg>              : Write data manually as input.
+     -r, --read <path>             : Read date from file as input.
+
+   Output Options
+
+     -w, --write <path>            : Enter the file's path,name and type of the
+                                     file to be created.
+
+   Input and Output Options
+
+     -o, --overwrite <path>        : Read the data from the input file and write
+                                     the operation over the same file.
+     -c, --crush <path(directory)> : Set folder and contents as target.
+                                     Compatible with --base64 option.
+
+   Size Option
+
+     -s, --size <integer>          : Set the size limit for scanned files in bytes.
+                                     Default: 1 MB.
+                                     Compatible with --crush options.
+
+   Information Options
+
+     -v, --verbose                 : Show all the progress.
+     -V, --version                 : Show version and exit.
+     -h, --help                    : Show this screen and exit.
+
+
+   Usage Examples:
+
+     xoreen -k xor33n -r /root/example.so -w /root/encrypted.txt -v
+     xoreen -k xor33n -r /root/encrypted.txt -w /root/decrypted.so -v
+     xoreen -k AgentSmith -o /root/some.zip -b encode -v
+     xoreen -k AgentSmith -o /root/some.zip -b decode -v
+     xorren -K -c /root/directory -b encode -s 1500000 -v
+
+   Checkout Warnings from README.md
+
+          "
+          exit(0)
+
+        when '--version'
+          puts "
+   xoreen v1.0.0
+
+   Xoreen. Encrypt and Decrypt Files Using Xor Algoritm.
+   Copyright (C) year: 2018
+   author: noycorp
+   e-mail: noycorp@protonmail.com
+
+   This program is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+	"
+	  exit(0)
+
+        when '--key'
+          @key = arg
+          @key_value = true
+          @level4.push('--key')
+
+        when '--keygen'
+          @keygen = arg.to_i if arg.empty? == false
+          @keygen_value = true
+          @level4.push('--keygen')
+
+        when '--text'
+          @text = arg
+          @text_value = true
+          @level1.push('--text')
+
+        when '--read'
+          @path = arg
+          @read_value = true
+          @level1.push('--read')
+
+        when '--write'
+          @write = arg
+          @write_value = true
+          @level2.push('--write')
+
+        when '--overwrite'
+          @overwrite = arg
+          @overwrite_value = true
+          @level1.push('--overwrite')
+          @level2.push('--overwrite')
+
+        when '--base64'
+          @base64 = arg
+          @base64_value = true
+          @level3.push('--base64')
+
+        when '--size'
+          @size = arg.to_i if arg.empty? == false
+          @size_value = true
+          @level5.push('--size')
+
+        when '--crush'
+          @crush = arg
+          @crush_value = true
+          @level1.push('--crush')
+          @level2.push('--crush')
+
+        when '--verbose'
+          @verbose = true
+
+        end
+      end
+    end
+    rescue
+      puts "Yardim icin xoreen --help komutunu kullan."
+      exit(0)
+  end  #func_getoptlong
+
+  def func_xor(value)
+
+    if !!defined?(@text_value) == false
+      value = value.encode!('UTF-8','binary',invalid: :replace,
+        undef: :replace, replace: '')
+    end
+
+    codepoints = value.each_codepoint.to_a
+    codepoints.each_index do |counter|
+
+      bar = counter
+      bar += 1.0
+      percent = (bar * 100 / codepoints.size).to_f
+
+      print "#{func_blue(" * ")}step #{@step}: xor gate: %#{percent.round(1)}             " + "\r"
+
+      if percent == 100
+        @verbose = false if @verdat == 1
+        percent = 0
+        @step += 1
+        print "#{func_green(" ~ ")}step #{@step}: xor gate: complete            " + "\r"
+        @verbose = true if @verbose == false && @verdat == 1
+      end
+
+      @xor += (codepoints[counter] ^ @key[counter % @key.size].ord).chr
+
+    end
+
+  rescue => error
+    puts "\n   Error: func_xor: #{error}"
+    @read = nil
+    @xor = nil
+
+  end #func_xor
+
+  def func_read(value)
+    @read = File.open("#{value}","r").read
+  end
+
+  def func_write(value)
+    File.open("#{value}","w") do |writer|
+      writer.puts @xor
+    end
+  end
+
+  def func_truncate(value)
+    @xor = File.truncate("#{value}", File.size("#{value}") - 1)
+  end
+
+  def func_base64encode(value)
+    @read = Base64.encode64(value)
+  end
+
+  def func_base64decode(value)
+    @xor = Base64.decode64(value)
+  end
+
+  def func_red(value)
+    "\e[31m#{value}\e[0m"
+  end
+
+  def func_blue(value)
+    "\e[34m#{value}\e[0m"
+  end
+
+  def func_brown(value)
+    "\e[33m#{value}\e[0m"
+  end
+
+  def func_green(value)
+    "\e[32m#{value}\e[0m"
+  end
+
+  def func_keygen(value)
+    allchar = [('a'..'z'), ('A')..('Z'), (0..9)].map(&:to_a).flatten
+    generator = (0...(value)).map { allchar[rand(allchar.length)] }.join
+    puts ""
+    puts "#{func_blue(" * ")}Do not lose the key.."
+    puts "#{func_green(" ~ ")}Key generated: #{generator}\n"
+    @key = generator.split('')
+  end
+
+  def func_error_first
+    if @level1.empty? && @level2.empty? && @level3.empty? && @level4.empty?
+      puts "   Xoreen Version 1.0.0"
+      puts "   'xoreen --help' for help."
+      exit(0)
+    end
+  end #func_error_first
+
+  def func_error_check
+
+    if @level4.size == 0
+      @hard_error += 1
+      opt_deactive_key = "#{func_red('--key')} "
+      guide_opt_deactive_key = "   #{@hard_error}.Error: Key option is not active.\n"
+
+    elsif @level4.size >= 2
+      @hard_error += 1
+      opt_overactive_key = "#{func_blue("#{@level4.join(" ")}")}"
+      guide_opt_overactive_key = "   #{@hard_error}.Error: Multiple key options active.\n"
+
+    elsif @level4.size == 1
+
+      if @key_value
+        opt_active_key = "#{func_green('--key')} "
+
+        if @key.empty? != true
+          arg_active_key = "#{func_green(@key)} "
+
+        elsif @key.empty?
+          @hard_error += 1
+          arg_deactive_key = "#{func_brown("your_password")} "
+          guide_arg_deactive_key = "   #{@hard_error}.Error: Key is missing.\n"
+
+        end
+
+      elsif @keygen_value
+        opt_active_keygen = "#{func_green('--keygen')} "
+
+        #if @keygen.empty? != true
+          if @keygen == Integer
+            arg_active_keygen = "#{func_green(@keygen)} "
+
+          elsif @keygen == String
+            @hard_error += 1
+            arg_wrong_keygen = "#{func_red(@keygen)} "
+            guide_arg_wrong_keygen = "   #{@hard_error}.Error: --keygen value has to be an integer.\n"
+
+          end
+        #end
+      end
+    end
+
+    if @level1.size == 0
+
+      @hard_error += 1
+      opt_deactive_input = "#{func_blue("( ")}#{func_red('--text')},#{func_red('--read')},#{func_red('--overwrite')},#{func_red('--crush')},#{func_blue(' )')}"
+      guide_opt_deactive_input = "   #{@hard_error}.Error: There are no input options to read the data.\n"
+
+    elsif @level1.size >= 2
+      @hard_error += 1
+      opt_overactive_input = "#{func_blue("#{@level1.join(" ")}")} "
+      guide_opt_overactive_input = "   #{@hard_error}.Error: Multiple input options are active.\n"
+
+    elsif @level1.size == 1
+
+      if @text_value
+        opt_active_text = "#{func_green("--text")} "
+
+        if @text.empty? != true
+          arg_active_text = "#{func_green(@text)} "
+
+        elsif @text.empty?
+          @hard_error += 1
+          arg_deactive_text = "#{func_brown("'some_words'")} "
+          guide_arg_deactive_text = "   #{@hard_error}.Error: --text options require text.\n"
+
+        end
+
+      elsif @read_value
+        opt_active_read = "#{func_green('--read')} "
+
+        if @path.empty? != true
+
+          if File.file?(@path)
+            arg_active_read = "#{func_green(@path)} "
+
+          elsif File.directory?(@path)
+            @hard_error += 1
+            arg_wrong_read = "#{func_red(@path)} "
+            guide_arg_wrong_read = "   #{@hard_error}.Error: The file to read data for the --read option cannot be a folder.\n"
+
+          elsif File.exist?(@path) == false
+            @hard_error += 1
+            arg_existence_read = "#{func_red(@path)} "
+            guide_arg_existence_read = "   #{@hard_error}.Error: File is not exist.\n"
+
+          elsif File.file?(@path) == false && File.directory?(@path) == false
+            @hard_error += 1
+            arg_wrong_read = "#{func_read(@path)} "
+            guide_arg_wrong_read = "   #{@hard_error}.Error: File to read data not defined.\n"
+
+          end
+
+        elsif @path.empty?
+          @hard_error += 1
+          arg_deactive_read = "#{func_brown("/path/../.file")} "
+          guide_arg_deactive_read = "   #{@hard_error}.Errpr: Missing path for --read option.\n"
+
+        end
+
+      elsif @overwrite_value
+        opt_active_overwrite = "#{func_green('--overwrite')} "
+
+        if @overwrite.empty? != true
+
+          if File.file?(@overwrite)
+            arg_active_overwrite = "#{func_green(@overwrite)} "
+
+          elsif File.directory?(@overwrite)
+            @hard_error += 1
+            arg_wrong_overwrite = "#{func_red(@overwrite)} "
+            guide_arg_wrong_overwrite = "   #{@hard_error}.Error: The file to read data for the --overwrite option cannot be a folder.\n"
+
+          elsif File.exist?(@overwrite) == false
+            @hard_error += 1
+            arg_existence_overwrite = "#{func_red(@overwrite)} "
+            guide_arg_existence_overwrite = "   #{@hard_error}.Error: File is not exist.\n"
+
+          end
+
+        elsif @overwrite.empty?
+          @hard_error += 1
+          arg_deactive_overwrite = "#{func_brown('/path/../.file')} "
+          guide_arg_deactive_overwrite = "   #{@hard_error}.Error: Missing path for --overwrite option.\n"
+
+        end
+
+      elsif @crush_value
+        opt_active_crush = "#{func_green('--crush')} "
+
+        if @crush.empty? != true
+
+          if File.file?(@crush)
+            @hard_error += 1
+            arg_wrong_crush = "#{func_red(@crush)} "
+            guide_arg_wrong_crush = "   #{@hard_error}.Error: --crush option can process with folders.\n"
+
+          elsif File.directory?(@crush)
+            arg_active_crush = "#{func_green(@crush)} "
+
+          elsif File.file?(@crush) != true && File.directory?(@crush) != true
+            arg_wrong_crush = "#{func_red(@crush)} "
+            guide_arg_wrong_crush = "   #{@hard_error}.Error: Folder not defined.\n"
+
+          end
+
+          if @base64_value
+            opt_active_crush = "#{func_green('--crush')} "
+
+          elsif @base64_value != true
+            opt_require_crush_base64 = "#{func_brown('--base64 <encode/decode>')} "
+            guide_opt_require_crush_base64 = "   #{@hard_error}.Error: --crush option cannot be used without --base64 option.\n"
+
+          end
+
+        else
+          @hard_error += 1
+          arg_deactive_crush = "#{func_brown('/path/../directory/')} "
+          guide_arg_deactive_crush = "   #{@hard_error}.Error: Folder path not found for --crush option.\n"
+
+        end
+      end
+    end
+
+    if @level2.size == 0
+      @hard_error += 1
+      opt_deactive_output = "#{func_red('--write')} "
+      guide_opt_deactive_output = "   #{@hard_error}.Error: There are no any output option to write data.\n"
+
+    elsif @level2.size >= 2
+      @hard_error += 1
+      opt_overactive_output = "#{func_blue("#{@level2.join(" ")}")} "
+      guide_opt_overactive_output = "   #{@hard_error}.Error: Multiple output options are active.\n"
+
+    elsif @level2.size == 1
+
+      if @write_value
+        opt_active_write = "#{func_green('--write')} "
+
+        if @write.empty? != true
+          arg_active_write = "#{func_green(@write)} "
+
+        elsif @write.empty?
+          @hard_error += 1
+          arg_deactive_write = "#{func_brown('/path/../.file')} "
+          guide_arg_deactive_write = "   #{@hard_error}.Error: Missing path for --write option.\n"
+
+        end
+      end
+    end
+
+    if @level3.size == 0
+      #opt_deactive_base64 = "#{func_red('--base64')} "
+    elsif @level3.size >= 2
+      @hard_error += 1
+      opt_overactive_base64 = "#{func_blue("#{@level3.join(" ")}")}"
+      guide_opt_overactive_base64 = "   #{@hard_error}.Error: Multiple --base64 options are active.\n"
+
+    elsif @level3.size == 1
+
+      if @base64_value
+        opt_active_base64 = "#{func_green('--base64')} "
+
+        if @base64.empty? != true
+
+          if @base64 == 'encode'
+            arg_active_base64 = "#{func_green(@base64)} "
+
+          elsif @base64 == 'decode'
+            arg_deactive_base64 = "#{func_green(@base64)} "
+
+          else
+            @hard_error += 1
+            arg_wrong_base64 = "#{func_red(@base64)} "
+            guide_arg_wrong_base64 = "   #{@hard_error}.Error: --base64 option can be used with only 'encode' or 'decode' arguments.\n"
+
+          end
+
+        elsif @base64.empty?
+          @hard_error += 1
+          arg_deactive_base64 = "#{func_brown('encode/decode')} "
+          guide_arg_deactive_base64 = "   #{@hard_error}.Error: Missing argument for --base64 option.\n"
+
+        end
+      end
+    end
+
+    if @hard_error > 0
+      puts ""
+      print "   xoreen "
+      print "#{opt_deactive_key if !! defined? opt_deactive_key}"
+      print "#{opt_overactive_key if !! defined? opt_overactive_key}"
+
+      print "#{opt_active_key if !! defined? opt_active_key}"
+      print "#{arg_active_key if !! defined? arg_active_key}"
+      print "#{arg_deactive_key if !! defined? arg_deactive_key}"
+
+
+      print "#{opt_deactive_input if !! defined? opt_deactive_input}"
+      print "#{opt_overactive_input if !! defined? opt_overactive_input}"
+
+      print "#{opt_active_text if !! defined? opt_active_text}"
+      print "#{arg_active_text if !! defined? arg_active_text}"
+      print "#{arg_deactive_text if !! defined? arg_deactive_text}"
+
+      print "#{opt_active_keygen if !! defined? opt_active_keygen}"
+      print "#{arg_active_keygen if !! defined? arg_active_keygen}"
+      print "#{arg_wrong_keygen if !! defined? arg_wrong_keygen}"
+
+
+      print "#{opt_active_read if !! defined? opt_active_read}"
+      print "#{arg_active_read if !! defined? arg_active_read}"
+      print "#{arg_deactive_read if !! defined? arg_deactive_read}"
+      print "#{arg_existence_read if !! defined? arg_existence_read}"
+      print "#{arg_wrong_read if !! defined? arg_wrong_read}"
+
+
+
+      print "#{opt_active_overwrite if !! defined? opt_active_overwrite}"
+      print "#{arg_active_overwrite if !! defined? arg_active_overwrite}"
+      print "#{arg_deactive_overwrite if !! defined? arg_deactive_overwrite}"
+      print "#{arg_existence_overwrite if !! defined? arg_existence_overwrite}"
+      print "#{arg_wrong_overwrite if !! defined? arg_wrong_overwrite}"
+
+
+      print "#{opt_active_crush if !! defined? opt_active_crush}"
+      print "#{opt_require_crush_base64 if !! defined? opt_require_crush_base64}"
+      print "#{arg_active_crush if !! defined? arg_active_crush}"
+      print "#{arg_deactive_crush if !! defined? arg_deactive_crush}"
+      print "#{arg_wrong_crush if !! defined? arg_wrong_crush}"
+
+
+
+      print "#{opt_deactive_output if !! defined? opt_deactive_output}"
+      print "#{opt_overactive_output if !! defined? opt_overactive_output}"
+
+      print "#{opt_active_write if !! defined? opt_active_write}"
+      print "#{arg_active_write if !! defined? arg_active_write}"
+      print "#{arg_deactive_write if !! defined? arg_deactive_write}"
+
+
+      print "#{opt_deactive_base64 if !! defined? opt_deactive_base64}"
+      print "#{opt_overactive_base64 if !! defined? opt_overactive_base64}"
+
+      print "#{opt_active_base64 if !! defined? opt_active_base64}"
+      print "#{arg_active_base64 if !! defined? arg_active_base64}"
+      print "#{arg_deactive_base64 if !! defined? arg_deactive_base64}"
+      print "#{arg_wrong_base64 if !! defined? arg_wrong_base64}"
+
+      puts "\n\n"
+      puts "#{func_red("   Red  :")} Wrong usage."
+      puts "#{func_blue("   Blue :")} Over usage."
+      puts "#{func_brown("   Brown:")} Missing usage."
+      puts "#{func_green("   Green:")} Correct usage."
+      puts ""
+
+      puts "   Details"
+      puts ""
+      print "#{guide_opt_deactive_key if !! defined? guide_opt_deactive_key}"
+      print "#{guide_opt_overactive_key if !! defined? guide_opt_overactive_key}"
+      print "#{guide_arg_deactive_key if !! defined? guide_arg_deactive_key}"
+      print "#{guide_arg_wrong_keygen if !! defined? guide_arg_wrong_keygen}"
+
+
+      print "#{guide_opt_deactive_input if !! defined? guide_opt_deactive_input}"
+      print "#{guide_opt_overactive_input if !! defined? guide_opt_overactive_input}"
+
+      print "#{guide_arg_deactive_text if !! defined? guide_arg_deactive_text}"
+
+      print "#{guide_arg_deactive_read if !! defined? guide_arg_deactive_read}"
+      print "#{guide_arg_existence_read if !! defined? guide_arg_existence_read}"
+      print "#{guide_arg_wrong_read if !! defined? guide_arg_wrong_read}"
+
+      print "#{guide_arg_deactive_overwrite if !! defined? guide_arg_deactive_overwrite}"
+      print "#{guide_arg_existence_overwrite if !! defined? guide_arg_existence_overwrite}"
+      print "#{guide_arg_wrong_overwrite if !! defined? guide_arg_wrong_overwrite}"
+
+      print "#{guide_opt_require_crush_base64 if !! defined? guide_opt_require_crush_base64}"
+      print "#{guide_arg_wrong_crush if !! defined? guide_arg_wrong_crush}"
+      print "#{guide_arg_deactive_crush if !! defined? guide_arg_deactive_crush}"
+
+
+      print "#{guide_opt_deactive_output if !! defined? guide_opt_deactive_output}"
+      print "#{guide_opt_overactive_output if !! defined? guide_opt_overactive_output}"
+
+      print"#{guide_arg_deactive_write if !! defined? guide_arg_deactive_write}"
+
+      print "#{guide_opt_overactive_base64 if !! defined? guide_opt_overactive_base64}"
+      print "#{guide_arg_deactive_base64 if !! defined? guide_arg_deactive_base64}"
+      print "#{guide_arg_wrong_base64 if !! defined? guide_arg_wrong_base64}"
+      puts ""
+
+      exit(0)
+
+    end
+  end #func_error_check
+
+  def func_info_key
+    puts ""
+    puts "#{func_red(' x ')}Key could not be defined." if @key.empty?
+    puts "#{func_green(' ~ ')}Key defined." if @key.empty? == false
+  end
+
+  def func_info_read(info)
+    puts ""
+    if @level1.empty? == false
+
+      if @text_value
+        puts "#{func_blue(' * ')}Input type is a text."
+
+      else
+
+        if File.file?(info)
+          puts "#{func_blue(' * ')}Target file: #{info}"
+          puts "#{func_blue(' * ')}Target file's size: #{(File.size(info).to_f / 1000000).round(3)} MB."
+
+        elsif File.directory?(info)
+          puts "#{func_red(' x ')}The file is not suitable for encryption: #{info}"
+
+        else
+          puts "#{func_red(' x ')}Target file cannot be found: #{info}"
+
+        end
+      end
+
+    else
+      puts "#{func_red(' x ')}File to encrypted not found."
+
+    end
+  end #func_info_read
+
+  def func_info_write(info)
+    if File.file?(info)
+
+      if @overwrite_value || @crush_value
+        puts ""
+        puts "#{func_green(' ~ ')}New data has overwriten an old data."
+        puts "#{func_blue(' * ')}The size of the created file: #{(File.size(info).to_f / 1000000).round(3)} MB."
+
+      else
+        puts ""
+        puts "#{func_green(' ~ ')}New file created: #{info}"
+        puts "#{func_blue(' * ')}The size of the new file: #{(File.size(info).to_f / 1000000).round(3)} MB."
+
+      end
+
+    elsif File.directory?(info)
+      puts ""
+      puts "#{func_red(' x ')}A writable file could not be created: #{info}"
+
+    else
+      puts ""
+      puts "#{func_red(' x ')}New file cannot created."
+
+    end
+    puts ""
+
+  end #func_info_write
+
+  def func_info_crush(info)
+    puts ""
+    puts "#{func_blue(' * ')}Target folder: #{info}"
+    puts "#{func_blue(' * ')}Size limit: #{(@size / 1000000.0).round(3)} MB.\n\n"
+
+    Dir.glob(info) do |file|
+      if File.file?(file)
+
+        if File.size(file) <= @size
+          puts "#{func_green(' ~ ')}Suitable for process: #{File.basename(file)}"
+
+        elsif File.size(file) > @size
+          puts "#{func_red(' x ')}File that exceed the size limit: #{File.basename(file)}"
+
+        end
+
+      elsif File.directory?(file)
+        puts "#{func_red(' x ')}Folders cannot be processed: #{file}"
+
+      else
+        puts "#{func_red(' x ')}File could not be defined: #{file}"
+
+      end
+    end
+
+    puts "#{func_blue(' * ')}Processing is starting.."
+    sleep 2
+
+  end #func_info_crush
+
+  def main
+
+    func_error_first
+    func_error_check
+    func_keygen(@keygen) if @keygen_value
+    func_info_key if @verbose
+
+    if @key.empty? == false
+
+      if @text_value
+        func_info_read(@text) if @verbose
+        func_xor(@text)
+      end
+
+      if @base64_value
+        require 'base64'
+        puts "#{func_blue(' * ')}Base64 algorithm: #{@base64}" if @verbose
+
+        if @read_value
+          if @base64 == 'encode'
+            begin
+              func_read(@path)
+              func_base64encode(@read)
+              func_xor(@read)
+            rescue => error
+              puts "   Error: base64::read::encode : #{error}"
+            end
+
+          elsif @base64 == 'decode'
+            begin
+              func_read(@path)
+              func_xor(@read)
+              func_base64decode(@xor)
+            rescue => error
+              puts "   Error: base64::read::decode : #{error}"
+            end
+          end #read value
+
+        elsif @overwrite_value
+          if @base64 == 'encode'
+            begin
+              func_info_read(@overwrite) if @verbose
+              func_read(@overwrite)
+              func_base64encode(@read)
+              func_xor(@read)
+              func_write(@overwrite)
+              func_info_write(@overwrite) if @verbose
+            rescue => error
+              puts "   Error: base64::overwrite::encode : #{error}"
+            end
+
+          elsif @base64 == 'decode'
+            begin
+              func_info_read(@overwrite) if @verbose
+              func_read(@overwrite)
+              func_xor(@read)
+              func_base64decode(@xor)
+              func_write(@overwrite)
+              func_info_write(@overwrite) if @verbose
+            rescue => error
+              puts "   Error: base64::overwrite::decode : #{error}"
+            end
+          end #overwrite_value
+
+        elsif @crush_value
+          @size = 1000000 if @size.nil?
+          @crush = @crush + "/**"
+          func_info_crush(@crush) if @verbose
+          Dir.glob(@crush) do |file|
+            if File.file?(file)
+              if File.size(file) <= @size
+                if @base64 == 'encode'
+                  begin
+                    func_info_read(file) if @verbose
+                    func_read(file)
+                    func_base64encode(@read)
+                    func_xor(@read)
+                    func_write(file)
+                    func_truncate(file)
+                    func_info_write(file) if @verbose
+                    @xor = ''
+
+                  rescue => error
+                    puts "   Error: base64::crush::encode : #{error}"
+                  end
+                elsif @base64 == 'decode'
+                  begin
+                    func_info_read(file) if @verbose
+                    func_read(file)
+                    func_xor(@read)
+                    func_base64decode(@xor)
+                    func_write(file)
+                    func_truncate(file)
+                    func_info_write(file) if @verbose
+                    @xor = ''
+
+                  rescue => error
+                    puts "   Error: base64::crush::decode : #{error}"
+                  end
+                end #base64::crush == <encode/decode>
+              end #File.size(file)
+            end #File.file?(file)
+          end #Dir.glob
+        end #crush_value
+      end #base64_value
+
+      if @read_value
+        if @base64_value != true
+          func_info_read(@path) if @verbose
+          func_read(@path)
+          func_xor(@read)
+        end #base64 != true
+      end #read_value standalone
+
+      if @write_value
+        if @xor.empty? == false
+          func_write(@write)
+          func_truncate(@write)
+          func_info_write(@write) if @verbose
+        end #xor.empty?
+      end #write_value standalone
+
+      if @overwrite_value
+          if @base64_value != true
+            func_info_read(@overwrite) if @verbose
+            func_read(@overwrite)
+            func_xor(@read)
+            func_write(@overwrite)
+            func_truncate(@overwrite)
+            func_info_write(@overwrite) if @verbose
+          end #base64 != true
+      end #overwrite_value standalone
+    end #key.empty?
+    puts ""
+  end #main
+
+  def garbage_collector
+    instance_variables.each { |var| remove_instance_variable(var) }
+  end #garbage collector
+
+  process.func_options
+  process.main
+  process.garbage_collector
+
+end #class xor sonu
+
