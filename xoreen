@@ -230,7 +230,7 @@ class Xor
       end
     end
     rescue
-      puts "Yardim icin xoreen --help komutunu kullan."
+      puts "'xoreen --help' for help."
       exit(0)
   end  #func_getoptlong
 
