@@ -13,7 +13,7 @@
 ## Xoreen's Purpose and What it Does
 The purpose of this program is to protect the desired documents in an unbreakable way.
 ## How it Works
-The desired document is taken to a Xor Gate with a user determined key.The Xor Gate encrypts this document in a **recoverable** way. To recover it, the document must be taken to the Xor Gate with the **same** key that was used to encrypt the document. No other key can **_recover_** the original document.
+The desired document is taken to a Xor Gate with a user determined key. The Xor Gate encrypts this document in a **recoverable** way. To recover it, the document must be taken to the Xor Gate with the **same** key that was used to encrypt the document. No other key can **_recover_** the original document.
 
 ## Xor Gate
 Xoreen can interact with any document that the operating system can read or write.
@@ -42,7 +42,7 @@ The document's codepoints and the key's codepoints are passed through the Xor Ga
 | t         | 01110100  |
 | x         | 01111000  |
 
-##### *Xor Encrpytion with a selected document and a key*
+##### *Xor Encryption with a selected document and a key*
 
 | String Status | String Name |                     String Binary                     |
 |:-------------:|:-----------:|:-----------------------------------------------------:|
@@ -61,7 +61,7 @@ The document's codepoints and the key's codepoints are passed through the Xor Ga
 ## Base64 Algorithm and Compatible Documents
 
 Base64 can encrypt binary data but UTF8 and UTF16 can only encrypt Unicode texts,
-for this reason, in some cases Base64 algorithm can be used.
+for this reason, in some cases, Base64 algorithm can be used.
 
 Since Base64 algorithm can transform almost any file format to UTF-8 characters, the transformed characters can pass through the Xor Gate .
 
@@ -83,8 +83,8 @@ Since Base64 algorithm can transform almost any file format to UTF-8 characters,
 
 ## Warnings
 
-- Dont interrupt the program. A file that was broken during the encryption process  **_may not be recovered_**.
-- Do not **_lose_** or **_forget_** the key. An encrpyted file **__cannot be recovered__** without a key.
+- Don't interrupt the program. A file that was broken during the encryption process  **_may not be recovered_**.
+- Do not **_lose_** or **_forget_** the key. An encrypted file **__cannot be recovered__** without a key.
 - The Xor Gate is safest when the file's byte size is the same length as the key.
 - To keep your key safe a random key can be generated.
 .`--keygen`
@@ -92,10 +92,10 @@ Since Base64 algorithm can transform almost any file format to UTF-8 characters,
 - Based on the processing speed, the process can be either quick or slow.
 
 ## Installation
-- The following steps are valid for the Linux Distributations.
-- Xoreen only requires a ruby compiler. If ruby is not installed:
+- The following steps are valid for the Linux Distributions.
+- Xoreen only requires a Ruby compiler. If ruby is not installed:
 >`sudo apt install ruby`
-- If it is installed,give any permission you like to Xoreen.
+- If it is installed, give any permission you like to Xoreen.
 > `sudo chmod 777 /root/xoreen/xoreen`
 - put xoreen in the /usr/bin/ folder.
 > `sudo cp /xoreen/xoreen /usr/bin/xoreen`
@@ -117,7 +117,7 @@ Since Base64 algorithm can transform almost any file format to UTF-8 characters,
 - License: GPL v3 License
 - Version: xoreen 1.0.0
 
-**NOT:** If you've found any exploits or errors or if you have any suggestions, pleace contact me.
+**NOTE:** If you've found any exploits or errors or if you have any suggestions, please contact me.
 
 
 ### Detailed Information about the Xor Gate
