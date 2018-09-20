@@ -112,8 +112,8 @@ Since Base64 algorithm can transform almost any file format to UTF-8 characters,
 
 ## Contact Information, Version ve License
 
-- author : noycorp
-- e-mail : noycorp@protonmail.com
+- author : cagri can
+- e-mail : c.canb@protonmail.com
 - License: GPL v3 License
 - Version: xoreen 1.0.0
 
