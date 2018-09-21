@@ -3,7 +3,7 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #                                                                             #
 #    Xoreen. Encrypt and Decrypt Files Using Xor Algorithm.                   #
-#    Copyright (C) year: 2018  author: noycorp                                #
+#    Copyright (C) year: 2018  author: ccan23                                #
 #                                                                             #
 #    This program is free software: you can redistribute it and/or modify     #
 #    it under the terms of the GNU General Public License as published by     #
@@ -161,8 +161,8 @@ class Xor
 
    Xoreen. Encrypt and Decrypt Files Using Xor Algoritm.
    Copyright (C) year: 2018
-   author: noycorp
-   e-mail: noycorp@protonmail.com
+   author: ccan23
+   e-mail: c.canb@protonmail.com
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
